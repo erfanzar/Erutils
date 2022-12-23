@@ -295,7 +295,7 @@ def kmeans(boxes, k, dist=np.median):
     return clusters
 
 
-class TorchBaseModule(torch.Module):
+class TorchBaseModule(nn.Module):
     def __init__(self):
         self.optimizer = None
         self.network = None

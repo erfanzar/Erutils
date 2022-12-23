@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: erutils
+Version: 0.2
+Summary: Erutils Package is a self made package for self uses but if you find a way to use it to make you job easier 
+Home-page: https://github.com/erfanzar/
+Author: erfan zare chavoshi
+Author-email: erfanzare82@yahoo.com
+License: MIT
+Requires: numpy
+Requires: torch
+Requires: torchvision
+Requires: numba
+Requires: nltk
+Requires: pandas
+Requires: json5
+Requires: PyYAML
+Requires: torchtext
+Requires: torchaudio
