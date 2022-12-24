@@ -5,6 +5,7 @@ erutils/__init__.py
 erutils/cli.py
 erutils/dll.py
 erutils/lightning.py
+erutils/nlp.py
 erutils/utils.py
 erutils.egg-info/PKG-INFO
 erutils.egg-info/SOURCES.txt

@@ -3,6 +3,7 @@ import cv2 as cv
 import keyboard
 import numpy as np
 
+
 def show_array(array: (np.ndarray, list, tuple)):
     while True:
         if isinstance(array, list):
@@ -14,6 +15,8 @@ def show_array(array: (np.ndarray, list, tuple)):
         cv.waitKey(1)
         if keyboard.is_pressed('q'):
             break
+
+
 class Cp:
     Type = 1
     BLACK = f'\033[{Type};30m'
@@ -31,13 +34,10 @@ def fprint(*args, color: str = Cp.CYAN, **kwargs):
     print(*(f"{color}{arg}" for arg in args), **kwargs)
 
 
-def attar_print(keys: [str, list[str]], values: [str, list[str]], color: str = Cp.CYAN, **kwargs):
-    assert len(keys) == len(values), 'Keys And Vals Should Have same size'
-    for i, (k, v) in enumerate(zip(keys, values)):
-        fprint(f'{k} : {v}', color=color, **kwargs)
+def attar_print(end: str = '\n', color: str = Cp.CYAN, **kwargs):
+    assert len(kwargs) > 0, 'Keys And Vals Should Have same size'
 
-
-
+    fprint((f'{k} : {v} \n' for k, v in kwargs.items()), color=color, end=end)
 
 
 def print_model(model, args, form, rank, index):

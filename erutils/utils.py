@@ -1,28 +1,27 @@
 import requests
 import time
-import sys
+
 import json
 import yaml
 
 import os
 import math
 import cv2 as cv
-import numpy as np
-import numba as nb
 
 
-def asMinutes(s):
+def as_minutes(s):
     m = math.floor(s / 60)
     s -= m * 60
     return '%dm %ds' % (m, s)
 
 
-def timeSince(since, percent):
+def time_since(since, percent):
     now = time.time()
     s = now - since
-    es = s / (percent)
+    es = s / percent
     rs = es - s
-    return '%s (- %s)' % (asMinutes(s), asMinutes(rs))
+    return '%s (- %s)' % (as_minutes(s), as_minutes(rs))
+
 
 def read_video(path):
     fr = cv.VideoCapture(path)
@@ -59,7 +58,7 @@ def download(path: [str, os.PathLike], from_file: bool = False):
             download(u, from_file=False)
     else:
         get = requests.get(url=path, stream=True)
-        name = path.split('/')[-1].replace('%20','')
+        name = path.split('/')[-1].replace('%20', '')
 
         file_size = int(get.headers['content-length'])
         mb_size = int(file_size / 1000000)
@@ -74,26 +73,27 @@ def download(path: [str, os.PathLike], from_file: bool = False):
                     if ts > 1:
                         pct_done = round(downloaded / file_size * 100)
                         speed = round(downloaded / (now - start) / 1024)
-                        pct = int(((pct_done) / 100) * 50)
+                        pct = int((pct_done / 100) * 50)
                         downloads = (pct_done / mb_size) if pct_done != 0 else 0
                         print(
-                            f'\r Download [\033[1;36m{"█" * pct}{" " * (50 - pct)}\033[1;37m] [{pct_done} % done] | avg speed {speed} kbps || {int(abs(start - now))} sec :: file size {downloaded / 1000000} / {mb_size} MB',
+                            f'\r Download [\033[1;36m{"█" * pct}{" " * (50 - pct)}\033[1;37m] '
+                            f'[{pct_done} % done] | avg speed {speed} kbps || {int(abs(start - now))}'
+                            f' sec :: file size {downloaded / 1000000} / {mb_size} MB',
                             end='')
 
         else:
             def rt():
-                s: str = input(f'\033[1;31m File already exists [{name}] do you want to replace this file ? [y/n]   ')
-                if s.lower() == 'y':
+                sas: str = input(f'\033[1;31m File already exists [{name}] do you want to replace this file ? [y/n]   ')
+                if sas.lower() == 'y':
                     os.remove(name)
                     download(path, from_file)
-                elif s.lower() == 'n':
+                elif sas.lower() == 'n':
                     pass
                 else:
-                    print(f'Wrong input type  : {s}')
+                    print(f'Wrong input type  : {sas}')
                     rt()
 
             rt()
-
 
 
 def read_yaml(path: [str, os.PathLike] = None):
@@ -103,6 +103,7 @@ def read_yaml(path: [str, os.PathLike] = None):
         except yaml.YAMLError as exc:
             print(exc)
     return data
+
 
 def read_json(path: [str, os.PathLike] = None):
     with open(path, 'r') as stream:
@@ -135,4 +136,3 @@ def wrd_print(words: list = None, action: str = None):
         string = f"{name}" + ("." if action is not None else "") + (action if action is not None else "")
         print(
             f'\033[1;36m{idx} : {eval(string)}')
-

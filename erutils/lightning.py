@@ -1,42 +1,38 @@
-import torch
-import numpy as np
-import math
+import os
 
 import torch.nn as nn
 import torch
 import unicodedata
 import re
-from typing import Union
-import numba as nb
-import sys
+
+import yaml
 from sklearn.cluster import KMeans
 from typing import Union
 import numpy as np
 import math
 
-from .cli import fprint, Cp, print_model
+from .cli import fprint, Cp, print_model, attar_print
 
 Any = Union[list, dict, int, float, str]
 
 
-def pars_args(args):
-    arg = '()' if len(args) == 0 else ''.join((f'{v},' if i != len(args) - 1 else f'{v}' for i, v in enumerate(args)))
-
-    arg = f'({arg})' if len(args) != 0 else arg
-
-    return arg
-
 def arg_creator(arg: list = None, prefix=None):
-    # print(*((f' {v},' if i != len(arg) else f'{v}') for i, v in enumerate(arg)))
+    '''
+
+    :param arg: args from list to pythonic like *args
+    :param prefix: to use for first arg
+    :return: args
+    '''
     created_args = f''.join(
         (((f'{prefix if prefix is not None else ""},{v},' if i == 0 else f'{v},') if i != len(arg) - 1 else f'{v}') for
          i, v in enumerate(arg)))
     return created_args
 
-def pars_model_v2(cfg,c_req:Union[list[str],str], detail: str = None, print_status: bool = False, sc: int = 3):
+
+def pars_model_v2(cfg, c_req: Union[list[str], str], detail: str = None, print_status: bool = False, sc: int = 3):
     """
 
-    :param cfg: model config like [-1,1,"Model_TYPE",[ARGs]]
+    :param cfg: a list of lists contain 4 parameters like [index:[int,list[int ]],number:int,name:str,args:[Any]];
     :param c_req: channel request Models
     :param detail: Full detail log
     :param print_status: Status
@@ -63,15 +59,20 @@ def pars_model_v2(cfg,c_req:Union[list[str],str], detail: str = None, print_stat
         model.append(m)
     return model
 
+
 def pars_model(cfg: list, device='cpu'):
+    """
+    :param cfg: a list of lists contain 4 parameters like [index:[int,list[int ]],number:int,name:str,args:[Any]];
+    :param device: device that module going to build in default set to *'cpu'*;
+    :return: Module
+    """
     model = nn.ModuleList()
     index, save = 0, []
     fprint(f'{f"[ - {device} - ]":>46}', color=Cp.RED)
     fprint(f'{"From":>10}{"Numbers":>25}{"Model Name":>25}{"Args":>25}\n')
     for c in cfg:
-
         f, n, t, a = c
-        args = pars_args(a)
+        args = arg_creator(a)
         fprint(f'{str(f):>10}{str(n):>25}{str(t):>25}{str(a):>25}')
         for i in range(n):
             string: str = f'{t}{args}'
@@ -297,6 +298,7 @@ def kmeans(boxes, k, dist=np.median):
 
 class TorchBaseModule(nn.Module):
     def __init__(self):
+        super(TorchBaseModule, self).__init__()
         self.optimizer = None
         self.network = None
         self.DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
@@ -340,6 +342,44 @@ class TorchBaseModule(nn.Module):
         return NotImplementedError
 
 
+class M(nn.Module):
+    """
+    this class is same as nn.Module but have hyper parameters
+    """
+
+    def __init__(self):
+        super(M, self).__init__()
+        self.DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+        self.hp = []
+        self.hyp = []
+
+    def load_hyp(self, path: Union[str, os.PathLike], log: bool = False):
+        assert (path.endswith('.yaml')), f'Selected file should be in yaml format but we got {path[path.index("."):]}'
+        data = yaml.safe_load(open(path, 'r'))
+        if len(data) != 0:
+            for d in data:
+                _d = d
+                attar_print(_d_=data[d])
+                if not hasattr(self, d):
+                    setattr(self, d, data[f'{d}'])
+                else:
+                    nd = str(d) + '_'
+                    fprint(
+                        f'The attribute that you passed in hyperparameter already exist [Action => Changing name from {d} to {nd}]'
+                    )
+                    setattr(self, nd, data[nd])
+                self.hyp.append({d: data[d]})
+
+    def jit_save(self, input_size: Union[list[int], tuple[int]], net, name: str = 'model.pt', **saves):
+        model_ckpt = {f'{k}': f"{v}" for k, v in saves.items()}
+        di = torch.randn(input_size).to(self.DEVICE)
+        j = torch.jit.trace(net, di, check_trace=False)
+        s = torch.jit.script(j)
+        torch.jit.save(s, name,
+                       model_ckpt
+                       )
+
+
 def anchor_prediction(w: list, h: list, n_clusters: int, original_height: int = 640, original_width: int = 640,
                       c_number: int = 640):
     w = np.asarray(w)
@@ -363,39 +403,3 @@ def anchor_prediction(w: list, h: list, n_clusters: int, original_height: int = 
     anchors = anchors.reshape((3, 6))
 
     return anchors
-
-
-class Lang:
-    def __init__(self, name):
-        self.name = name
-        self.word2index = {}
-        self.word2count = {}
-        self.index2word = {0: "SOS", 1: "EOS"}
-        self.n_words = 2  # Count SOS and EOS
-
-    def addSentence(self, sentence):
-        for word in sentence.split(' '):
-            self.addWord(word)
-
-    def addWord(self, word):
-        if word not in self.word2index:
-            self.word2index[word] = self.n_words
-            self.word2count[word] = 1
-            self.index2word[self.n_words] = word
-            self.n_words += 1
-        else:
-            self.word2count[word] += 1
-def unicodeToAscii(s):
-    return ''.join(
-        c for c in unicodedata.normalize('NFD', s)
-        if unicodedata.category(c) != 'Mn'
-    )
-
-# Lowercase, trim, and remove non-letter characters
-
-
-def normalizeString(s):
-    s = unicodeToAscii(s.lower().strip())
-    s = re.sub(r"([.!?])", r" \1", s)
-    s = re.sub(r"[^a-zA-Z.!?]+", r" ", s)
-    return s
