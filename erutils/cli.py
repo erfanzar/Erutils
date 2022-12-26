@@ -2,6 +2,7 @@ import sys
 import cv2 as cv
 import keyboard
 import numpy as np
+import matplotlib.pylab as plt
 
 
 def show_array(array: (np.ndarray, list, tuple)):
@@ -15,6 +16,20 @@ def show_array(array: (np.ndarray, list, tuple)):
         cv.waitKey(1)
         if keyboard.is_pressed('q'):
             break
+
+
+def draw_rec(x1, y1, x2, y2, img_size: int = 640, thickness=3):
+    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+    fig, ax = plt.subplots()
+    frame = np.zeros((img_size, img_size, 3), dtype=np.uint8)
+    frame[:, :] = [255, 255, 255]
+    print(f'x1, y1, x2, y2 : {x1, y1, x2, y2}')
+    for h in range(img_size):
+        for w in range(img_size):
+            if x1 < w < x2 and y1 < h < y2:
+                if x1 < w < x1 + thickness or y1 < h < y1 + thickness or x2 - thickness < w < x2 or y2 - thickness < h < y2:
+                    frame[h, w] = [90, 80, 40]
+    plt.imshow(frame)
 
 
 class Cp:
