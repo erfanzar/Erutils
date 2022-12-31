@@ -16,13 +16,13 @@ Open [Package Github](https://github.com/erfanzar/Erutils)
     
 
 ### `command line inteface`
-*command line inteface* is used for command line interface with functions like.
-show_array   arrays between 0 - 255 to image show
-draw_rec   plot rectangle with given informations
-Cp   colors cli
-fprint
-attar_print
-print_model
+*command line inteface* is used for command line interface with functions like.\
+show_array   arrays between 0 - 255 to image show\
+draw_rec   plot rectangle with given informations\
+Cp   colors cli\
+fprint\
+attar_print\
+print_model\
 Logger   class Logger
 
 
@@ -47,7 +47,7 @@ iou\
 bbox_iou   updated iou\
 avg_iou\
 TorchBaseModule   torch train based module with some new capeblities\
-M   torch module based module with some new features\
+M   torch module based module with some new features
 
 ### `utils`
 *utils* some functions like downloader timeSince and some more ... .
@@ -62,7 +62,7 @@ read_txt\
 str_to_list\
 wrd_print\
 read_toml\
-mp4_to_mp3\
+mp4_to_mp3
 
 ### `neurons`
 *neurons* some customized neural networks for pytorch line Convs and etc .
@@ -80,10 +80,10 @@ MP\
 SP\
 LP\
 UpSample\
-SPPCSPC\
+SPPCSPC
 
 ### `nlp`
 *nlp* not fully complited but have classes and functions for text preprocessing .\
 Lang   class for tokenize words like (add to vocab index2token and etc)\
 normalize_string \
-unicode_to_ascii \
+unicode_to_ascii
