@@ -1,15 +1,12 @@
+import math
 import os
+from typing import Union
 
-import torch.nn as nn
+import numpy as np
 import torch
-import unicodedata
-import re
-
+import torch.nn as nn
 import yaml
 from sklearn.cluster import KMeans
-from typing import Union
-import numpy as np
-import math
 
 from .command_line_interface import fprint, Cp, print_model, attar_print
 
@@ -143,9 +140,9 @@ def name_to_layer(name: str, attr: Any = None, in_case_prefix_use=None, prefix: 
     return model
 
 
-def module_creator(backbone, head, print_status, ic_backbone, nc, anchors):
+def module_creator(backbone, head, print_status, ic_backbone, nc, anchors, in_case_prefix_use):
     model = nn.ModuleList()
-    save, sv_bb, in_case_prefix_use = [], [], ['Conv']
+    save, sv_bb = [], []
     model_list = backbone + head
     sva, idx = 0, 0
     for i, at in enumerate(model_list):

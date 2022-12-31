@@ -1,10 +1,12 @@
-import torch 
+import torch
 import torch.nn as nn
+
+from .lightning import M
 
 DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
-class Conv(nn.Module):
+class Conv(M):
     def __init__(self, c1: int, c2: int, k: int = 1, s: int = 1, p: int = None, g: int = 1,
                  activation: [str, torch.nn] = None,
                  form: int = -1):
@@ -26,7 +28,7 @@ class Conv(nn.Module):
         return x
 
 
-class Concat(nn.Module):
+class Concat(M):
     def __init__(self, dim, form):
         super(Concat, self).__init__()
         self.form = form
@@ -36,7 +38,7 @@ class Concat(nn.Module):
         return torch.cat(x, self.dim)
 
 
-class Neck(nn.Module):
+class Neck(M):
     def __init__(self, c1, c2, e=0.5, shortcut=False, form: int = -1):
         super(Neck, self).__init__()
         c_ = int(c2 * e)
@@ -53,7 +55,7 @@ class Neck(nn.Module):
         return k
 
 
-class C3(nn.Module):
+class C3(M):
     def __init__(self, c1, c2, e=0.5, n=1, shortcut=True, form: int = -1):
         super(C3, self).__init__()
         c_ = int(c2 * e)
@@ -79,7 +81,7 @@ class C4P(C3):
         return x
 
 
-class RepConv(nn.Module):
+class RepConv(M):
     def __init__(self, c, e=0.5, n=3, form: int = -1):
         super(RepConv, self).__init__()
         c_ = int(c * e)
@@ -111,7 +113,7 @@ class ConvSc(RepConv):
         return x + x_
 
 
-class ResidualBlock(nn.Module):
+class ResidualBlock(M):
     def __init__(self, c1, n: int = 4, use_residual: bool = True, form: int = -1):
         super(ResidualBlock, self).__init__()
         self.use_residual = use_residual
@@ -135,7 +137,7 @@ class ResidualBlock(nn.Module):
         return x + c if self.use_residual else x
 
 
-class Detect(nn.Module):
+class Detect(M):
     stride = False
     interface = False
 
@@ -185,13 +187,13 @@ class Detect(nn.Module):
         score = z[:, :, 5:]
         score *= conf
         convert_matrix = torch.tensor([[1, 0, 1, 0], [0, 1, 0, 1], [-0.5, 0, 0.5, 0], [0, -0.5, 0, 0.5]],
-                                  dtype=torch.float32,
-                                  device=z.device)
+                                      dtype=torch.float32,
+                                      device=z.device)
         box @= convert_matrix
         return (box, score)
 
 
-class CV1(nn.Module):
+class CV1(M):
     def __init__(self, c1, c2, e=0.5, n=1, shortcut=False, dim=-3, form: int = -1):
         super(CV1, self).__init__()
         c_ = int(c2 * e)
@@ -211,7 +213,7 @@ class CV1(nn.Module):
             torch.cat((self.c(x), self.v(x)), dim=self.dim)) + x
 
 
-class UC1(nn.Module):
+class UC1(M):
     def __init__(self, c1, c2, e=0.5, dim=-3, form: int = -1):
         super(UC1, self).__init__()
         self.form = form
@@ -225,7 +227,7 @@ class UC1(nn.Module):
         return self.m(torch.cat((self.c(x), self.v(x)), dim=self.dim))
 
 
-class MP(nn.Module):
+class MP(M):
     def __init__(self, k=2, form: int = -1):
         super(MP, self).__init__()
         self.form = form
@@ -236,7 +238,7 @@ class MP(nn.Module):
         return x
 
 
-class SP(nn.Module):
+class SP(M):
     def __init__(self, k=3, s=1, form: int = -1):
         super(SP, self).__init__()
         self.form = form
@@ -247,7 +249,7 @@ class SP(nn.Module):
         return x
 
 
-class LP(nn.Module):
+class LP(M):
     def __init__(self, dim: int = None):
         super(LP, self).__init__()
         self.dim = dim
@@ -256,7 +258,7 @@ class LP(nn.Module):
         return torch.cat((l1, l2), dim=dim_f if self.dim is None else self.dim)
 
 
-class UpSample(nn.Module):
+class UpSample(M):
     def __init__(self, s: int = 2, m: str = 'nearest', form: int = -1):
         super(UpSample, self).__init__()
         self.form = form
@@ -267,7 +269,7 @@ class UpSample(nn.Module):
         return x
 
 
-class SPPCSPC(nn.Module):
+class SPPCSPC(M):
 
     def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5, k=(5, 9, 13)):
         super(SPPCSPC, self).__init__()
