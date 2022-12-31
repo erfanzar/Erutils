@@ -8,20 +8,20 @@ Erutils Package is a self made package for self uses but if you find a way to us
 feel free to use as you wish but for a simple introduction erutils have 4 fls and those are .
 
 
-'cli' , 'dll' ,' lightning(AI)' , 'utils', 'nlp' .
+'Cli' , 'Dll' ,' Lightning(AI)' , 'Utils', 'Nlp' .
 
 
-# 'cli'
+# 'Cli'
 *'cli'* is used for command line interface .
 
 
-# 'dll'
+# 'Dll'
 *'dll'* for dll file problems cause i ran into a lot of em .
 
 
-# 'lightning'
+# 'Lightning'
 *'lightning'* some classes and functions that i think that i always use like iou kmeans and many more ... .
 
 
-# 'utils'
+# 'Utils'
 *'utils'* some functions like downloader timeSince and some more ... .
