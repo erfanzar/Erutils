@@ -11,14 +11,13 @@ from typing import Union
 import numpy as np
 import math
 
-from .cli import fprint, Cp, print_model, attar_print
+from .command_line_interface import fprint, Cp, print_model, attar_print
 
 Any = Union[list, dict, int, float, str]
 
 
 def arg_creator(arg: list = None, prefix=None):
     '''
-
     :param arg: args from list to pythonic like *args
     :param prefix: to use for first arg
     :return: args

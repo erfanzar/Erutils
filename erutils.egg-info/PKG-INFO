@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: erutils
-Version: 0.4.2
-Summary: Erutils Package is a self made package for self uses but if you find a way to use it to make you job easier
+Version: 0.4.4
+Summary: Erutils Package is a self made package for self uses but if you find a way to use it to make you job easier feel free to use as you wish
 Home-page: https://github.com/erfanzar/
 Author: erfan zare chavoshi
 Author-email: Erfan zare Chavoshi  <erfanzare82@yahoo.com>
@@ -17,7 +17,7 @@ Requires: json5
 Requires: PyYAML
 Requires: torchtext
 Requires: torchaudio
-Requires-Python: >=3.9
+Requires-Python: >=3.8
 Description-Content-Type: text/markdown
 
 # `Erutils`

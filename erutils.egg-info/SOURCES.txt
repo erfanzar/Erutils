@@ -3,9 +3,10 @@ pyproject.toml
 setup.py
 erutils/__init__.py
 erutils/__main__.py
-erutils/cli.py
+erutils/command_line_interface.py
 erutils/dll.py
 erutils/lightning.py
+erutils/neurons.py
 erutils/nlp.py
 erutils/utils.py
 erutils.egg-info/PKG-INFO

@@ -1,9 +1,11 @@
 import json
 import math
 import time
+from typing import Union
 
 import cv2 as cv
 import requests
+import toml
 import yaml
 from moviepy.editor import *
 
@@ -95,7 +97,7 @@ def download(path: [str, os.PathLike], from_file: bool = False):
             rt()
 
 
-def read_yaml(path: [str, os.PathLike] = None):
+def read_yaml(path: Union[str, os.PathLike] = None):
     with open(path, 'r') as stream:
         try:
             data = yaml.safe_load(stream)
@@ -104,7 +106,7 @@ def read_yaml(path: [str, os.PathLike] = None):
     return data
 
 
-def read_json(path: [str, os.PathLike] = None):
+def read_json(path: Union[str, os.PathLike] = None):
     with open(path, 'r') as stream:
         try:
             data = json.load(stream)
@@ -113,7 +115,7 @@ def read_json(path: [str, os.PathLike] = None):
     return data
 
 
-def read_txt(path: [str, os.PathLike] = None):
+def read_txt(path: Union[str, os.PathLike] = None):
     data = []
     with open(path, 'r') as r:
         data.append([v for v in r.readlines()])
@@ -137,7 +139,13 @@ def wrd_print(words: list = None, action: str = None):
             f'\033[1;36m{idx} : {eval(string)}')
 
 
-def MP4ToMP3(mp4, mp3):
-    FILETOCONVERT = AudioFileClip(mp4)
-    FILETOCONVERT.write_audiofile(mp3)
-    FILETOCONVERT.close()
+def read_toml(path: Union[str, os.PathLike] = None):
+    with open(path, 'r') as r:
+        data = toml.load(r)
+    return data
+
+
+def mp4_to_mp3(mp4, mp3):
+    fc = AudioFileClip(mp4)
+    fc.write_audiofile(mp3)
+    fc.close()
