@@ -2,7 +2,7 @@ from setuptools import setup
 
 if __name__ == "__main__":
     setup(name='erutils',
-          version='0.4',
+          version='0.4.2',
 
           description='''
           Erutils Package is a self made package for self uses but if you find a way to use it to make you job easier 
@@ -14,7 +14,7 @@ if __name__ == "__main__":
            *utils* some functions like downloader timeSince and some more ...
            
           ''',
-          author='Erfan zare chavoshi',
+          author='erfan zare chavoshi',
           url='https://github.com/erfanzar/',
           author_email='erfanzare82@yahoo.com',
           license='MIT',
