@@ -137,7 +137,7 @@ def wrd_print(words: list = None, action: str = None):
             f'\033[1;36m{idx} : {eval(string)}')
 
 
-def MP4ToMP3(mp4, mp3):
-    FILETOCONVERT = AudioFileClip(mp4)
-    FILETOCONVERT.write_audiofile(mp3)
-    FILETOCONVERT.close()
+def mp4_to_mp3(mp4, mp3):
+    fc = AudioFileClip(mp4)
+    fc.write_audiofile(mp3)
+    fc.close()

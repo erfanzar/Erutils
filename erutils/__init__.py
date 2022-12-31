@@ -6,4 +6,4 @@ from .lightning import pars_model_v2, pars_model, arg_creator, max_args_to_one_a
     attr_exist_check_
 from .nlp import Lang, unicode_to_ascii, normalize_string
 from .utils import write_video_frame, str_to_list, read_yaml, wrd_print, download, read_txt, read_json, read_video, \
-    as_minutes, time_since, MP4ToMP3
+    as_minutes, time_since, mp4_to_mp3
