@@ -1,12 +1,11 @@
-import requests
+import json
+import math
 import time
 
-import json
-import yaml
-
-import os
-import math
 import cv2 as cv
+import requests
+import yaml
+from moviepy.editor import *
 
 
 def as_minutes(s):
@@ -136,3 +135,9 @@ def wrd_print(words: list = None, action: str = None):
         string = f"{name}" + ("." if action is not None else "") + (action if action is not None else "")
         print(
             f'\033[1;36m{idx} : {eval(string)}')
+
+
+def MP4ToMP3(mp4, mp3):
+    FILETOCONVERT = AudioFileClip(mp4)
+    FILETOCONVERT.write_audiofile(mp3)
+    FILETOCONVERT.close()

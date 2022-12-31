@@ -1,4 +1,4 @@
 [build-system]
-requires = ['setuptools>=42','numpy', 'torch', 'torchvision', 'numba', 'nltk', 'pandas', 'json5', 'PyYAML', 'torchtext',
-                    'torchaudio']
+requires = ['setuptools>=42', 'numpy', 'torch', 'torchvision', 'numba', 'nltk', 'pandas', 'json5', 'PyYAML', 'torchtext',
+    'torchaudio', 'moviepy']
 build-backend = 'setuptools.build_meta'
