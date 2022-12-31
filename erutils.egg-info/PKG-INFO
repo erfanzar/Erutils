@@ -1,11 +1,12 @@
 Metadata-Version: 2.1
 Name: erutils
-Version: 0.3
-Summary: Erutils Package is a self made package for self uses but if you find a way to use it to make you job easier 
+Version: 0.4.0
+Summary: The Erutils package is the most simple package that include some stuffs that i think that i use every day and build them every day cause im to lazy to copy them from other projects :).
 Home-page: https://github.com/erfanzar/
-Author: erfan zare chavoshi
-Author-email: erfanzare82@yahoo.com
+Author: Erfan zare chavoshi
+Author-email: Erfan zare Chavoshi  <erfanzare82@yahoo.com>
 License: MIT
+Project-URL: Homepage, https://github.com/erfanzar/Erutils
 Requires: numpy
 Requires: torch
 Requires: torchvision
@@ -16,3 +17,9 @@ Requires: json5
 Requires: PyYAML
 Requires: torchtext
 Requires: torchaudio
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+
+# `Erutils`
+
+The `Erutils` package is the most simple package that include some stuffs that i think that i use every day and build them every day cause im to lazy to copy them from other projects :). 

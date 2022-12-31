@@ -1,0 +1,2 @@
+[console_scripts]
+realpython = erutils.__main__:main

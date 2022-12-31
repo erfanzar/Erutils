@@ -2,3 +2,25 @@
 requires = ['setuptools>=42', 'numpy', 'torch', 'torchvision', 'numba', 'nltk', 'pandas', 'json5', 'PyYAML', 'torchtext',
     'torchaudio', 'moviepy']
 build-backend = 'setuptools.build_meta'
+
+
+
+[project]
+name = "erutils"
+version = "0.4.0"
+description = "The Erutils package is the most simple package that include some stuffs that i think that i use every day and build them every day cause im to lazy to copy them from other projects :)."
+readme = "README.md"
+authors = [{ name = "Erfan zare Chavoshi ", email = "erfanzare82@yahoo.com" }]
+
+dependencies = [
+    "feedparser >= 5.2.0",
+    "html2text",
+    'tomli; python_version < "3.11"',
+]
+requires-python = ">=3.9"
+
+[project.urls]
+Homepage = "https://github.com/erfanzar/Erutils"
+
+[project.scripts]
+realpython = "erutils.__main__:main"
