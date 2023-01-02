@@ -343,13 +343,13 @@ class TorchBaseModule(nn.Module):
         self.network = None
         self.DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
-    def optim(self):
+    def set_optim(self):
         """
         Init the Optimizer In this function
         """
         return NotImplementedError
 
-    def model(self):
+    def s_model(self):
         """
         Model the Optimizer In this function
         """
@@ -357,17 +357,22 @@ class TorchBaseModule(nn.Module):
 
     def set_model(self):
         """
-        :param model: any torch.Module Subs
         :return: model to base class for init
         """
-        self.network = self.model()
-        self.optimizer = self.optim()
+        self.network = self.s_model()
+        self.optimizer = self.set_optim()
+
+    def __call__(self, batch):
+        return self.forward(batch)
 
     def forward_once(self, x):
         return NotImplementedError
 
-    def forward(self):
-        return NotImplementedError
+    def forward(self, batch):
+        if NotImplemented:
+            return self.forward_once(batch[0])
+        else:
+            return NotImplementedError
 
     def jit_save(self, input_size, net, name, **saves):
         model_ckpt = {f'{k}': f"{v}" for k, v in saves.items()}
