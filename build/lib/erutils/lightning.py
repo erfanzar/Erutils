@@ -59,10 +59,14 @@ def pars_model_v2(cfg, c_req: Union[list[str], str], detail: str = None, print_s
         if not print_status: print(f"Adding : {model_name}")
 
         sc = arg[0] if m in c_req else sc
+        ffa = None if f == -1 else f % i if isinstance(f, int) else [None if k == -1 else k % i for k in f]
+
+        saves.append(ffa)
 
         m = eval(model_name)
+        setattr(m, 'f', f)
         model.append(m)
-    return model
+    return model, saves
 
 
 def pars_model(cfg: list, device='cpu', imports: Union[list[str], str] = None):
