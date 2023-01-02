@@ -25,9 +25,11 @@ def arg_creator(arg: list = None, prefix=None):
     return created_args
 
 
-def pars_model_v2(cfg, c_req: Union[list[str], str], detail: str = None, print_status: bool = False, sc: int = 3):
+def pars_model_v2(cfg, c_req: Union[list[str], str], detail: str = None, print_status: bool = False, sc: int = 3,
+                  imports: Union[list[str], str] = None):
     """
 
+    :param imports: before creating layers or adding neruons to layer you must import them into function
     :param cfg: a list of lists contain 4 parameters like [index:[int,list[int ]],number:int,name:str,args:[Any]];
     :param c_req: channel request Models
     :param detail: Full detail log
@@ -35,6 +37,13 @@ def pars_model_v2(cfg, c_req: Union[list[str], str], detail: str = None, print_s
     :param sc: Start Channel
     :return:
     """
+    if imports is not None:
+        if isinstance(imports, list):
+            for imp in imports:
+                exec(imp)
+        elif isinstance(imports, str):
+            exec(imports)
+
     saves = []
     model = nn.ModuleList()
 
@@ -56,12 +65,20 @@ def pars_model_v2(cfg, c_req: Union[list[str], str], detail: str = None, print_s
     return model
 
 
-def pars_model(cfg: list, device='cpu'):
+def pars_model(cfg: list, device='cpu', imports: Union[list[str], str] = None):
     """
     :param cfg: a list of lists contain 4 parameters like [index:[int,list[int ]],number:int,name:str,args:[Any]];
     :param device: device that module going to build in default set to *'cpu'*;
     :return: Module
     """
+
+    if imports is not None:
+        if isinstance(imports, list):
+            for imp in imports:
+                exec(imp)
+        elif isinstance(imports, str):
+            exec(imports)
+
     model = nn.ModuleList()
     index, save = 0, []
     fprint(f'{f"[ - {device} - ]":>46}', color=Cp.RED)
@@ -124,8 +141,15 @@ def de_parallel(model):
 
 
 def name_to_layer(name: str, attr: Any = None, in_case_prefix_use=None, prefix: Any = None,
-                  form: [list, int] = -1,
+                  form: [list, int] = -1, imports: Union[list[str], str] = None,
                   print_debug: bool = True, nc: int = 4, anchors: list = None):
+    if imports is not None:
+        if isinstance(imports, list):
+            for imp in imports:
+                exec(imp)
+        elif isinstance(imports, str):
+            exec(imports)
+
     if in_case_prefix_use is None:
         in_case_prefix_use = []
     attr = [attr] if isinstance(attr, int) else attr
@@ -140,7 +164,15 @@ def name_to_layer(name: str, attr: Any = None, in_case_prefix_use=None, prefix: 
     return model
 
 
-def module_creator(backbone, head, print_status, ic_backbone, nc, anchors, in_case_prefix_use):
+def module_creator(backbone, head, print_status, ic_backbone, nc, anchors, in_case_prefix_use,
+                   imports: Union[list[str], str] = None):
+    if imports is not None:
+        if isinstance(imports, list):
+            for imp in imports:
+                exec(imp)
+        elif isinstance(imports, str):
+            exec(imports)
+
     model = nn.ModuleList()
     save, sv_bb = [], []
     model_list = backbone + head

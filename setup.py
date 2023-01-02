@@ -2,7 +2,7 @@ from setuptools import setup
 
 if __name__ == "__main__":
     setup(name='erutils',
-          version='0.5.2',
+          version='0.5.5',
 
           description='''
           Erutils Package is a self made package for self uses but if you find a way to use it to make you job easier 
