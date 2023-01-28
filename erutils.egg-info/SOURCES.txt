@@ -6,8 +6,8 @@ erutils/__main__.py
 erutils/command_line_interface.py
 erutils/dll.py
 erutils/lightning.py
-erutils/neurons.py
 erutils/nlp.py
+erutils/nn.py
 erutils/utils.py
 erutils.egg-info/PKG-INFO
 erutils.egg-info/SOURCES.txt

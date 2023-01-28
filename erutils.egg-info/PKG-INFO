@@ -1,11 +1,10 @@
 Metadata-Version: 2.1
 Name: erutils
-Version: 0.5.9
+Version: 0.6.1
 Summary: Erutils Package is a self made package for self uses but if you find a way to use it to make you job easier feel free to use as you wish
 Home-page: https://github.com/erfanzar/
 Author: erfan zare chavoshi
 Author-email: Erfan zare Chavoshi  <erfanzare82@yahoo.com>
-License: MIT
 Project-URL: Homepage, https://github.com/erfanzar/Erutils
 Requires: numpy
 Requires: torch

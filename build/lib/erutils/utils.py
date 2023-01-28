@@ -149,3 +149,28 @@ def mp4_to_mp3(mp4, mp3):
     fc = AudioFileClip(mp4)
     fc.write_audiofile(mp3)
     fc.close()
+
+
+def file_reader(path: Union[str, os.PathLike]) -> list:
+    """
+
+    :param path: path to crawl
+    :return: a list with 2 index, index 1 for directories and index 2 for file paths
+    """
+    files = [os.path.join(path, s) for s in os.listdir(path) if os.path.exists(os.path.join(path, s)) if
+             not os.path.isdir(os.path.join(path, s))]
+    dirs = [os.path.join(path, s) for s in os.listdir(path) if os.path.exists(os.path.join(path, s)) if
+            os.path.isdir(os.path.join(path, s))]
+    if len(dirs) != 0:
+
+        for da in dirs:
+
+            if not len(da) == 0 and not isinstance(da, list):
+
+                d, f = file_reader(da)
+                files.append(f)
+                dirs.append(d)
+            else:
+                return [[x for x in dirs if x], [x for x in files if x]]
+    else:
+        return [[x for x in dirs if x], [x for x in files if x]]
