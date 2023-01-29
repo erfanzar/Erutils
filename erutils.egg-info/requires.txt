@@ -1,19 +1,18 @@
 feedparser>=5.2.0
 html2text
 opencv-python~=4.6.0.66
-keyboard~=0.13.5
-numpy~=1.23.4
-pefile~=2022.5.30
-requests~=2.28.1
-yaml~=0.2.5
-pyyaml~=6.0
-numba~=0.56.4
-scikit-learn~=1.1.3
-torch~=2.0.0
-setuptools~=65.5.0
-moviepy~=1.0.3
-imageio==2.23.0
-toml~=0.10.2
+keyboard
+numpy
+pefile
+requests
+PyYAML
+pyyaml
+numba
+scikit-learn
+setuptools
+moviepy
+imageio
+toml
 
 [:python_version < "3.11"]
 tomli

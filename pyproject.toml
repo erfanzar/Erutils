@@ -7,7 +7,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = "erutils"
-version = "0.6.1"
+version = "0.6.5"
 description = '''
           Erutils Package is a self made package for self uses but if you find a way to use it to make you job easier feel free to use as you wish
           but for a simple introduction erutils have 4 fls and those are
@@ -24,19 +24,19 @@ authors = [{ name = "Erfan zare Chavoshi ", email = "erfanzare82@yahoo.com" }]
 dependencies = [
     "feedparser >= 5.2.0",
     "html2text", "opencv-python~=4.6.0.66",
-    "keyboard~=0.13.5",
-    "numpy~=1.23.4",
-    "pefile~=2022.5.30",
-    "requests~=2.28.1",
-    "yaml~=0.2.5",
-    "pyyaml~=6.0",
-    "numba~=0.56.4",
-    "scikit-learn~=1.1.3",
-    " torch~=2.0.0",
-    "setuptools~=65.5.0",
-    " moviepy~=1.0.3",
-    "imageio==2.23.0",
-    " toml~=0.10.2",
+    "keyboard",
+    "numpy",
+    "pefile",
+    "requests",
+    "PyYAML",
+    "pyyaml",
+    "numba",
+    "scikit-learn",
+#    " torch~=2.0.0",
+    "setuptools",
+    "moviepy",
+    "imageio",
+    " toml",
     'tomli; python_version < "3.11"',
 ]
 requires-python = ">=3.8"

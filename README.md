@@ -87,3 +87,22 @@ SPPCSPC
 Lang   class for tokenize words like (add to vocab index2token and etc)\
 normalize_string \
 unicode_to_ascii
+
+
+## 🚀 About Me
+
+Hi there 👋
+I like to train deep neural nets on large datasets 🧠.
+Among other things in this world:)
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
+## Used By
+
+Private Project
+
+## Author
+
+- [@erfanzar](https://www.github.com/erfanzar)

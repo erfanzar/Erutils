@@ -2,7 +2,7 @@ from setuptools import setup
 
 if __name__ == "__main__":
     setup(name='erutils',
-          version='0.6.1',
+          version='0.6.5',
 
           description='''
           Erutils Package is a self made package for self uses but if you find a way to use it to make you job easier 
@@ -19,6 +19,6 @@ if __name__ == "__main__":
           author_email='erfanzare82@yahoo.com',
           # license='MIT',
           packages=['erutils'],
-          requires=['numpy', 'torch', 'torchvision', 'numba', 'nltk', 'pandas', 'json5', 'PyYAML', 'torchtext',
+          requires=['numpy', 'torchvision', 'numba', 'nltk', 'pandas', 'json5', 'PyYAML', 'torchtext',
                     'torchaudio'],
           zip_safe=False)
