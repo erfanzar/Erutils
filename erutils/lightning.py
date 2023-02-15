@@ -8,7 +8,7 @@ import torch.nn as nn
 import yaml
 from sklearn.cluster import KMeans
 
-from .command_line_interface import fprint, Cp, print_model, attar_print
+from .loggers import fprint, Cp, print_model, attar_print
 
 import time
 

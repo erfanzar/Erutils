@@ -12,3 +12,6 @@ setuptools~=65.5.0
 moviepy~=1.0.3
 imageio==2.23.0
 toml~=0.10.2
+torch~=2.0.0.dev20230101+cu116
+onnxruntime~=1.12.1
+dataclasses~=0.8
