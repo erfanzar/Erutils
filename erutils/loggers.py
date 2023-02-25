@@ -1,8 +1,10 @@
+import dataclasses
 import sys
 import cv2 as cv
 import keyboard
 import numpy as np
 import matplotlib.pylab as plt
+from typing import Optional, Union
 
 
 def show_array(array: (np.ndarray, list, tuple)):
@@ -18,7 +20,7 @@ def show_array(array: (np.ndarray, list, tuple)):
             break
 
 
-list_color = [
+list_color: Optional[list[list[int]]] = [
     [255, 0, 0],
     [0, 255, 0],
     [0, 0, 255],
@@ -44,17 +46,18 @@ def draw_rec(x1, y1, x2, y2, img_size: int = 640, thickness=3):
     plt.imshow(frame)
 
 
+@dataclasses.dataclass
 class Cp:
-    Type = 1
-    BLACK = f'\033[{Type};30m'
-    RED = f'\033[{Type};31m'
-    GREEN = f'\033[{Type};32m'
-    YELLOW = f'\033[{Type};33m'
-    BLUE = f'\033[{Type};34m'
-    MAGENTA = f'\033[{Type};35m'
-    CYAN = f'\033[{Type};36m'
-    WHITE = f'\033[{Type};1m'
-    RESET = f"\033[{Type};39m"
+    Type: Optional[int] = 1
+    BLACK: Optional[str] = f'\033[{Type};30m'
+    RED: Optional[str] = f'\033[{Type};31m'
+    GREEN: Optional[str] = f'\033[{Type};32m'
+    YELLOW: Optional[str] = f'\033[{Type};33m'
+    BLUE: Optional[str] = f'\033[{Type};34m'
+    MAGENTA: Optional[str] = f'\033[{Type};35m'
+    CYAN: Optional[str] = f'\033[{Type};36m'
+    WHITE: Optional[str] = f'\033[{Type};1m'
+    RESET: Optional[str] = f"\033[{Type};39m"
 
 
 def fprint(*args, color: str = Cp.CYAN, **kwargs):
@@ -89,3 +92,12 @@ class Logger:
 
     def flush(self):
         sys.stdout.flush()
+
+
+def show_hyper_parameters(hyper_parameters: object) -> None:
+    len_t = 30 + 30 + 7
+    fprint('=' * len_t)
+    for k, v in hyper_parameters.__dict__.items():
+        text: Optional[str] = '| {:<30} = {:>30} |'.format(f'{k}', f'{v}')
+        fprint(text)
+    fprint('=' * len_t)

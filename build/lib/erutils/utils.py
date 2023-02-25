@@ -12,8 +12,14 @@ import dataclasses
 
 import torch
 
+
 # __call__ = ['as_minutes', 'time_since', 'read_video', 'write_video_frame', 'download', 'read_yaml', 'read_json',
 #             'read_txt', 'str_to_list', 'wrd_print', 'mp4_to_mp3', 'read_toml', 'file_reader']
+
+
+class HyperParameters(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(**kwargs)
 
 
 def as_minutes(s):

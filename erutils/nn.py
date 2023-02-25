@@ -5,6 +5,222 @@ from .lightning import M
 
 DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
+import math
+from collections import OrderedDict
+
+import torch
+from packaging import version
+from torch import Tensor, nn
+
+
+class HyperParameters(object):
+    def __init__(self, **kwargs):
+        self.model_type: Optional[str] = kwargs.pop('model_type', 'PGT-s')
+        self.num_embedding: Optional[int] = kwargs.pop('num_embedding', 512)
+        self.intermediate_size: Optional[int] = kwargs.pop('intermediate_size', 5)
+        self.num_heads: Optional[int] = kwargs.pop('num_heads', 8)
+        self.chunk: Optional[int] = kwargs.pop('chunk', 256)
+        self.vocab_size: Optional[int] = kwargs.pop('vocab_size', 5000)
+        self.num_layers: Optional[int] = kwargs.pop('num_layers', 2)
+        self.scale_attn_by_layer_idx: Optional[bool] = kwargs.pop('scale_attn_by_layer_idx', False)
+        self.use_mask: Optional[bool] = kwargs.pop('use_mask', True)
+        self.attn_dropout: Optional[float] = kwargs.pop('attn_dropout', 0.1)
+        self.residual_dropout: Optional[float] = kwargs.pop('residual_dropout', 0.2)
+        self.activation: Optional[str] = kwargs.pop('activation', "gelu_new")
+        self.embedded_dropout: Optional[float] = kwargs.pop('embedded_dropout', 0.15)
+        self.epochs: Optional[int] = kwargs.pop('epochs', 500)
+        self.lr: Optional[float] = kwargs.pop('lr', 4e-4)
+        self.pad_token_id: Optional[int] = kwargs.pop('pad_token_id', 0)
+        self.create_attention_mask: Optional[bool] = kwargs.pop('create_attention_mask', False)
+        self.device: Optional[str] = kwargs.pop('device', 'cuda' if torch.cuda.is_available() else 'cpu')
+        self.weight_decay: Optional[float] = kwargs.pop('weight_decay', 2e-1, )
+        for k, v in kwargs.items():
+            if k not in self:
+                setattr(self, k, v)
+
+
+class PytorchGELUTanh(nn.Module):
+    """
+    A fast C implementation of the tanh approximation of the GeLU activation function. See
+    https://arxiv.org/abs/1606.08415.
+    This implementation is equivalent to NewGELU and FastGELU but much faster. However, it is not an exact numerical
+    match due to rounding errors.
+    """
+
+    def __init__(self):
+        super().__init__()
+        if version.parse(torch.__version__) < version.parse("1.12.0"):
+            raise ImportError(
+                f"You are using torch=={torch.__version__}, but torch>=1.12.0 is required to use "
+                "PytorchGELUTanh. Please upgrade torch."
+            )
+
+    def forward(self, input: Tensor) -> Tensor:
+        return nn.functional.gelu(input, approximate="tanh")
+
+
+class NewGELUActivation(nn.Module):
+    """
+    Implementation of the GELU activation function currently in Google BERT repo (identical to OpenAI GPT). Also see
+    the Gaussian Error Linear Units paper: https://arxiv.org/abs/1606.08415
+    """
+
+    def forward(self, input: Tensor) -> Tensor:
+        return 0.5 * input * (1.0 + torch.tanh(math.sqrt(2.0 / math.pi) * (input + 0.044715 * torch.pow(input, 3.0))))
+
+
+class GELUActivation(nn.Module):
+    """
+    Original Implementation of the GELU activation function in Google BERT repo when initially created. For
+    information: OpenAI GPT's GELU is slightly different (and gives slightly different results): 0.5 * x * (1 +
+    torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3)))) This is now written in C in nn.functional
+    Also see the Gaussian Error Linear Units paper: https://arxiv.org/abs/1606.08415
+    """
+
+    def __init__(self, use_gelu_python: bool = False):
+        super().__init__()
+        if use_gelu_python:
+            self.act = self._gelu_python
+        else:
+            self.act = nn.functional.gelu
+
+    def _gelu_python(self, input: Tensor) -> Tensor:
+        return input * 0.5 * (1.0 + torch.erf(input / math.sqrt(2.0)))
+
+    def forward(self, input: Tensor) -> Tensor:
+        return self.act(input)
+
+
+class FastGELUActivation(nn.Module):
+    """
+    Applies GELU approximation that is slower than QuickGELU but more accurate. See: https://github.com/hendrycks/GELUs
+    """
+
+    def forward(self, input: Tensor) -> Tensor:
+        return 0.5 * input * (1.0 + torch.tanh(input * 0.7978845608 * (1.0 + 0.044715 * input * input)))
+
+
+class QuickGELUActivation(nn.Module):
+    """
+    Applies GELU approximation that is fast but somewhat inaccurate. See: https://github.com/hendrycks/GELUs
+    """
+
+    def forward(self, input: Tensor) -> Tensor:
+        return input * torch.sigmoid(1.702 * input)
+
+
+class ClippedGELUActivation(nn.Module):
+    """
+    Clip the range of possible GeLU outputs between [min, max]. This is especially useful for quantization purpose, as
+    it allows mapping negatives values in the GeLU spectrum. For more information on this trick, please refer to
+    https://arxiv.org/abs/2004.09602.
+    Gaussian Error Linear Unit. Original Implementation of the gelu activation function in Google Bert repo when
+    initially created.
+    For information: OpenAI GPT's gelu is slightly different (and gives slightly different results): 0.5 * x * (1 +
+    torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3)))). See https://arxiv.org/abs/1606.08415
+    """
+
+    def __init__(self, min: float, max: float):
+        if min > max:
+            raise ValueError(f"min should be < max (got min: {min}, max: {max})")
+
+        super().__init__()
+        self.min = min
+        self.max = max
+
+    def forward(self, x: Tensor) -> Tensor:
+        return torch.clip(gelu(x), self.min, self.max)
+
+
+class SiLUActivation(nn.Module):
+    """
+    See Gaussian Error Linear Units (Hendrycks et al., https://arxiv.org/abs/1606.08415) where the SiLU (Sigmoid Linear
+    Unit) was originally introduced and coined, and see Sigmoid-Weighted Linear Units for Neural Network Function
+    Approximation in Reinforcement Learning (Elfwing et al., https://arxiv.org/abs/1702.03118) and Swish: a Self-Gated
+    Activation Function (Ramachandran et al., https://arxiv.org/abs/1710.05941v1) where the SiLU was experimented with
+    later.
+    """
+
+    def forward(self, input: Tensor) -> Tensor:
+        return nn.functional.silu(input)
+
+
+class MishActivation(nn.Module):
+    """
+    See Mish: A Self-Regularized Non-Monotonic Activation Function (Misra., https://arxiv.org/abs/1908.08681). Also
+    visit the official repository for the paper: https://github.com/digantamisra98/Mish
+    """
+
+    def __init__(self):
+        super().__init__()
+        if version.parse(torch.__version__) < version.parse("1.9.0"):
+            self.act = self._mish_python
+        else:
+            self.act = nn.functional.mish
+
+    def _mish_python(self, input: Tensor) -> Tensor:
+        return input * torch.tanh(nn.functional.softplus(input))
+
+    def forward(self, input: Tensor) -> Tensor:
+        return self.act(input)
+
+
+class LinearActivation(nn.Module):
+    """
+    Applies the linear activation function, i.e. forwarding input directly to output.
+    """
+
+    def forward(self, input: Tensor) -> Tensor:
+        return input
+
+
+class ClassInstantier(OrderedDict):
+    def __getitem__(self, key):
+        content = super().__getitem__(key)
+        cls, kwargs = content if isinstance(content, tuple) else (content, {})
+        return cls(**kwargs)
+
+
+ACT2CLS = {
+    "gelu": GELUActivation,
+    "gelu_10": (ClippedGELUActivation, {"min": -10, "max": 10}),
+    "gelu_fast": FastGELUActivation,
+    "gelu_new": NewGELUActivation,
+    "gelu_python": (GELUActivation, {"use_gelu_python": True}),
+    "gelu_pytorch_tanh": PytorchGELUTanh,
+    "linear": LinearActivation,
+    "mish": MishActivation,
+    "quick_gelu": QuickGELUActivation,
+    "relu": nn.ReLU,
+    "relu6": nn.ReLU6,
+    "sigmoid": nn.Sigmoid,
+    "silu": SiLUActivation,
+    "swish": SiLUActivation,
+    "tanh": nn.Tanh,
+}
+ACT2FN = ClassInstantier(ACT2CLS)
+
+
+def get_activation(activation_string):
+    if activation_string in ACT2FN:
+        return ACT2FN[activation_string]
+    else:
+        raise KeyError(f"function {activation_string} not found in ACT2FN mapping {list(ACT2FN.keys())}")
+
+
+# For backwards compatibility with: from activations import gelu_python
+gelu_python = get_activation("gelu_python")
+gelu_new = get_activation("gelu_new")
+gelu = get_activation("gelu")
+gelu_fast = get_activation("gelu_fast")
+quick_gelu = get_activation("quick_gelu")
+silu = get_activation("silu")
+mish = get_activation("mish")
+linear_act = get_activation("linear")
+
+
+# from hugging face :)
+
 
 class Conv(M):
     def __init__(self, c1: int, c2: int, k: int = 1, s: int = 1, p: int = None, g: int = 1,
@@ -293,7 +509,6 @@ class SPPCSPC(M):
 
 from dataclasses import dataclass
 from typing import Union, Optional
-from .activations import get_activation
 
 try:
 
@@ -311,7 +526,6 @@ except:
     import torch.nn as nn
     from torch.nn import functional as F
 
-# torch.manual_seed(1377)
 import math
 
 __all__ = ['MultiHeadBlock', 'MultiHeadAttention', 'Head', 'FeedForward', 'Decoder', 'Encoder', 'CasualBlock',
@@ -658,24 +872,6 @@ class Decoder(nn.Module):
 
 # =========================================================> PGT => models
 
-@dataclass
-class Config:
-    num_embedding: int = 512
-    num_heads: int = 8
-    max_len: int = 256
-    vocab_size: int = 5000
-    num_layers: int = 2
-    scale_attn_by_layer_idx: bool = False
-    use_mask: bool = True
-    attn_dropout: float = 0.2
-    residual_dropout: float = 0.2
-    activation = 'new_gelu'
-    hidden_size: int = num_embedding
-    max_position_embeddings = max_len
-    embd_pdrop: float = 0.1
-    device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
-    intermediate_size: int = num_embedding * 4
-
 
 class Conv1D(nn.Module):
     def __init__(self, c1, c2):
@@ -688,21 +884,21 @@ class Conv1D(nn.Module):
 
     def forward(self, x):
         new_shape = x.size()[:-1] + (self.c2,)
-        # print(f'income : {x.shape}')
+
         x = torch.addmm(self.bias, x.view(-1, x.size(-1)), self.weight).view(new_shape)
-        # print(f'output : {x.shape}')
+
         return x
 
 
 class MultiCNNAttention(nn.Module):
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config, layer_idx=None, use_mask: bool = None):
         super(MultiCNNAttention, self).__init__()
         self.layer_idx = layer_idx
-        self.embedding = config.hidden_size
+        self.embedding = config.num_embedding
         self.num_heads = config.num_heads
         self.num_div = self.embedding // self.num_heads
         self.scale_attn_by_layer_idx = config.scale_attn_by_layer_idx
-        self.use_mask = config.use_mask
+        self.use_mask = config.use_mask if use_mask is None else use_mask
         if self.num_heads // self.embedding != 0:
             raise ValueError(
                 f'hidden_size must be dividable to num_heads {self.num_heads} // {self.embedding} = {self.num_heads // self.embedding}'
@@ -712,9 +908,9 @@ class MultiCNNAttention(nn.Module):
         self.residual_dropout = nn.Dropout(config.residual_dropout)
         self.attn_dropout = nn.Dropout(config.attn_dropout)
         self.register_buffer('bias', torch.tril(
-            torch.ones(config.max_len, config.max_len, dtype=torch.uint8, device=config.device).view(1, 1,
-                                                                                                     config.max_len,
-                                                                                                     config.max_len)))
+            torch.ones(config.chunk, config.chunk, dtype=torch.uint8, device=config.device).view(1, 1,
+                                                                                                 config.chunk,
+                                                                                                 config.chunk)))
 
         self.register_buffer('masked_bias', torch.tensor(float(-1e4)))
 
@@ -766,8 +962,8 @@ class MultiCNNAttention(nn.Module):
 class PGTMLP(nn.Module):
     def __init__(self, config):
         super(PGTMLP, self).__init__()
-        self.c_op = Conv1D(config.hidden_size, config.intermediate_size)
-        self.c_proj = Conv1D(config.intermediate_size, config.hidden_size)
+        self.c_op = Conv1D(config.num_embedding, config.num_embedding * config.intermediate_size)
+        self.c_proj = Conv1D(config.num_embedding * config.intermediate_size, config.num_embedding)
         self.dropout = nn.Dropout(config.residual_dropout)
         self.act = get_activation(config.activation)
 
@@ -780,18 +976,50 @@ class PGTMLP(nn.Module):
 
 
 class PGTBlock(nn.Module):
-    def __init__(self, config, layer_idx=None):
+    def __init__(self, config, layer_idx_1=None, layer_idx_2=None):
         super(PGTBlock, self).__init__()
-        self.ln1 = nn.LayerNorm(config.hidden_size)
-        self.ln2 = nn.LayerNorm(config.hidden_size)
-        self.h = MultiCNNAttention(config=config, layer_idx=layer_idx)
+        # self.ln1 = nn.LayerNorm(config.num_embedding)
+        # self.ln2 = nn.LayerNorm(config.num_embedding)
+        # self.ln3 = nn.LayerNorm(config.num_embedding)
+        # self.h_1 = MultiCNNAttention(config=config, layer_idx=layer_idx_1)
+        # self.h_2 = MultiCNNAttention(config=config, layer_idx=layer_idx_2, use_mask=False)
+        # self.mlp = PGTMLP(config)
+        self.ln1 = nn.LayerNorm(config.num_embedding)
+        self.ln2 = nn.LayerNorm(config.num_embedding)
+        self.h_1 = MultiCNNAttention(config=config, layer_idx=layer_idx_1)
         self.mlp = PGTMLP(config)
 
     def forward(self, hidden_state, attention_mask=None, heads_mask=None):
+        # residual = hidden_state
+        # hidden_state = self.ln1(hidden_state)
+        # hidden_state = self.h_1(hidden_state, attention_mask, heads_mask) + residual
+        #
+        # residual = hidden_state
+        # hidden_state = self.ln2(hidden_state)
+        # hidden_state = self.h_2(hidden_state, attention_mask, heads_mask) + residual
+        #
+        # residual = hidden_state
+        # hidden_state = self.ln3(hidden_state)
+        # hidden_state = self.mlp(hidden_state) + residual
+        # return hidden_state
         residual = hidden_state
         hidden_state = self.ln1(hidden_state)
-        hidden_state = self.h(hidden_state, attention_mask, heads_mask) + residual
+        hidden_state = self.h_1(hidden_state, attention_mask, heads_mask) + residual
+
         residual = hidden_state
-        hidden_state = self.ln2(residual)
+        hidden_state = self.ln2(hidden_state)
         hidden_state = self.mlp(hidden_state) + residual
         return hidden_state
+
+
+class CC_PGT_Block(nn.Module):
+    def __init__(self, config, layer_idx: int = None):
+        super(CC_PGT_Block, self).__init__()
+        self.ln1 = nn.LayerNorm(config.num_embedding)
+        self.ln2 = nn.LayerNorm(config.num_embedding)
+        self.h = MultiCNNAttention(config=config, layer_idx=layer_idx)
+        self.mlp = PGTMLP(config=config)
+
+    def forward(self, hidden_state, attention_mask=None, heads_mask=None):
+        return self.mlp(self.ln2(hidden_state)) + self.h(
+            self.ln1(hidden_state), attention_mask=attention_mask)
