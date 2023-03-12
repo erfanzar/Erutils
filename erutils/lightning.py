@@ -1,6 +1,6 @@
 import math
 import os
-from typing import Union
+from typing import Union, List, Tuple, Optional
 
 import numpy as np
 import torch
@@ -698,3 +698,21 @@ def anchor_prediction(w: list, h: list, n_clusters: int, original_height: int = 
     anchors = anchors.reshape((3, 6))
 
     return anchors
+
+
+def shape_broadcast_freq(q: Optional[torch.Tensor], f: Optional[torch.Tensor]) -> torch.Tensor:
+    ndim = q.ndim
+    assert ndim > 1
+    assert f.shape == (q.shape[1], q.shape[-1])
+    shape = [d if i == 1 or i == ndim - 1 else 1 for i, d in enumerate(q.shape)]
+    return f.view(*shape)
+
+
+def rotary_embedding(query: Optional[torch.Tensor], key: Optional[torch.Tensor], freq: Optional[torch.Tensor]) \
+        -> Tuple[torch.Tensor, torch.Tensor]:
+    _query: torch.Tensor = torch.view_as_complex(query.float().view(*query.shape[:-1], -1, 2))
+    _key: torch.Tensor = torch.view_as_complex(key.float().view(*key.shape[:-1], -1, 2))
+    freq: torch.Tensor = shape_broadcast_freq(_query, freq)
+    q: torch.Tensor = torch.view_as_real(_query * freq).flatten(3)
+    k: torch.Tensor = torch.view_as_real(_key * freq).flatten(3)
+    return q.type_as(query), k.type_as(key)
