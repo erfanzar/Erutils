@@ -395,7 +395,7 @@ def de_parallel(model):
 
 
 def name_to_layer(name: str, attr: Any = None, in_case_prefix_use=None, prefix: Any = None,
-                  form: [list, int] = -1, imports: Union[list[str], str] = None,
+                  form: Union[List, int] = -1, imports: Union[list[str], str] = None,
                   print_debug: bool = True, nc: int = 4, anchors: list = None):
     if imports is not None:
         if isinstance(imports, list):
@@ -716,3 +716,23 @@ def rotary_embedding(query: Optional[torch.Tensor], key: Optional[torch.Tensor],
     q: torch.Tensor = torch.view_as_real(_query * freq).flatten(3)
     k: torch.Tensor = torch.view_as_real(_key * freq).flatten(3)
     return q.type_as(query), k.type_as(key)
+
+
+def build_alibi_tensor(number_of_heads:Optional[int],attention_mask:Optional[torch.Tensor],dtype:torch.dtype):
+    assert attention_mask.ndim == 2
+    batch,seq_len = attention_mask.shape
+    p2 = 2 ** math.floor(math.log2(number_of_heads))
+    base = torch.tensor(2**(-(2**-(math.log2(p2)-3))),device=attention_mask.device,dtype=dtype)
+    powers = torch.arange(1,1+p2,device=attention_mask.device,dtype=dtype)
+    slopes = torch.pow(base,powers)
+    if p2 != number_of_heads:
+        
+        extra_base = torch.tensor(
+            2 ** (-(2 ** -(math.log2(2 * p2) - 3))), device=attention_mask.device, dtype=torch.float32
+        )
+        num_remaining_heads = min(p2, number_of_heads - p2)
+        extra_powers = torch.arange(1, 1 + 2 * num_remaining_heads, 2, device=attention_mask.device, dtype=torch.int32)
+        slopes = torch.cat([slopes, torch.pow(extra_base, extra_powers)], dim=0)
+    arange_tensor = ((attention_mask.cumsum(-1) -1)*attention_mask)[:,None,:]
+    alibi  = slopes[...,None] * arange_tensor
+    return alibi.reshape(batch*number_of_heads,-1,seq_len)
