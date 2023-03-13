@@ -11,7 +11,7 @@ import toml
 import yaml
 from moviepy.editor import *
 import dataclasses
-from . import fprint
+from .loggers import fprint
 import torch
 
 
