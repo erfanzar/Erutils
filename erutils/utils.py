@@ -1,15 +1,17 @@
 import json
 import math
 import time
-from typing import Union
+import typing
+from typing import Union, Optional
 
 import cv2 as cv
+import psutil
 import requests
 import toml
 import yaml
 from moviepy.editor import *
 import dataclasses
-
+from . import fprint
 import torch
 
 
@@ -241,7 +243,7 @@ def detokenize_words(word: list, first_word_token: int = 0, last_word_token: int
     w = [(first_word_token if w == last_word_token - 1 else w) for w in
          [w for w in word if w not in [last_word_token, first_word_token]]]
     del w[-1]
-    # print(f'W : {w}')
+
     return w
 
 
@@ -299,98 +301,55 @@ def make2d(tensor):
     return tensor.view(-1, tensor.size(-1))
 
 
-def get_pgt_config_by_name(name: str = 'PGT-s', vocab_size: int = 5000,
-                           device: str = 'cuda' if torch.cuda.is_available() else 'cpu') -> create_config:
+def device_info() -> None:
+    prp = torch.cuda.get_device_properties("cuda")
+    memory = psutil.virtual_memory()
+    free, total_gpu = torch.cuda.mem_get_info('cuda:0')
+    used_gpu = total_gpu - free
+    fprint(
+        f'DEVICES : [ {torch.cuda.get_device_name()} ] | [ Free : {free / 1e9} GB ] | [ Used : {used_gpu / 1e9} GB ] | '
+        f'[ Total : {total_gpu / 1e9} GB ]\n'
+        f'RAM : [ Free : {memory.free / 1e9} GB ] | [ Total : {memory.total / 1e9} GB ]')
+
+
+def get_memory(index: int) -> typing.Tuple[float, float, float]:
     """
-    :param device: device for model
-    :param vocab_size: vocab_size
-    :param name: name of the type of model you want to get config
-    [chooses] = ['PGT-ss']['PGT-s']['PGT-m']['PGT-x']['PGT-l']['PGT-A']
-    :return: Config
+    :param index: cuda index
+    :return: free,used_gpu,total_gpu memory
     """
-    if name == 'PGT-Cs':
-        return create_config(
-            name,
-            num_embedding=256,
-            num_heads=8,
-            epochs=1000,
-            num_layers=6,
-            device=device,
-            vocab_size=vocab_size,
-            chunk=256,
-            lr=4e-4,
-            use_mask=True
-        )
-    if name == 'PGT-As':
-        return create_config(
-            name,
-            num_embedding=624,
-            num_heads=12,
-            epochs=1000,
-            num_layers=10,
-            device=device,
-            vocab_size=vocab_size,
-            chunk=128,
-            lr=4e-4,
-            use_mask=True
-        )
-    elif name == 'PGT-s':
-        return create_config(
-            name,
-            num_embedding=256,
-            num_heads=8,
-            num_layers=4,
-            device=device,
-            vocab_size=vocab_size,
-            chunk=64,
-            use_mask=True
-        )
-    elif name == 'PGT-m':
-        return create_config(
-            name,
-            num_embedding=512,
-            num_heads=8,
-            num_layers=8,
-            device=device,
-            vocab_size=vocab_size,
-            chunk=128,
-            use_mask=True
-        )
-    elif name == 'PGT-x':
-        return create_config(
-            name,
-            num_embedding=512,
-            num_heads=16,
-            num_layers=14,
-            device=device,
-            vocab_size=vocab_size,
-            chunk=256,
-            use_mask=True
-        )
-    elif name == 'PGT-l':
-        return create_config(
-            name,
-            num_embedding=728,
-            num_heads=14,
-            num_layers=20,
-            device=device,
-            vocab_size=vocab_size,
-            chunk=512,
-            use_mask=True
-        )
-    elif name == 'PGT-A':
-        prp = torch.cuda.get_device_properties("cuda")
-        print(f'\033[1;32mWarning You Loading the Largest Model on {prp.name} : {prp.total_memory / 1e9} GB')
-        return create_config(
-            name,
-            num_embedding=1024,
-            num_heads=32,
-            num_layers=42,
-            device=device,
-            vocab_size=vocab_size,
-            chunk=728,
-            use_mask=True
-        )
+    free, total_gpu = torch.cuda.mem_get_info(f'cuda:{index}')
+    used_gpu = total_gpu - free
+    free, total_gpu, used_gpu = free / 1e9, total_gpu / 1e9, used_gpu / 1e9
+    return free, used_gpu, total_gpu
+
+
+def monitor_function(function):
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = function(*args, **kwargs)
+        end = time.perf_counter()
+        print(f'\033[1;92m {function.__name__} took {end - start:.6f} seconds to complete')
+        return result
+
+    return wrapper
+
+
+def create_output_path(path: Union[os.PathLike, str], name: Optional[str]):
+    path_exist = os.path.exists(path)
+    if not path_exist:
+        os.mkdir(path)
+    name_exist = os.path.exists(os.path.join(path, name))
+    u_name = name
+    if not name_exist:
+        os.mkdir(os.path.join(path, u_name))
+
     else:
-        raise NameError(
-            f"Valid Names for Model are ['PGT-Cs']['PGT-As']['PGT-s']['PGT-m']['PGT-x']['PGT-l']['PGT-A'] | [ERROR : Unknown {name} type]")
+        at_try: int = 1
+        while True:
+            try:
+                u_name = name + f'_{at_try}'
+                os.mkdir(os.path.join(path, u_name))
+                break
+            except FileExistsError:
+                at_try += 1
+    return f'{path}/{u_name}'
