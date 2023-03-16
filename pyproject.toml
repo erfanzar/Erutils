@@ -7,7 +7,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = "erutils"
-version = "1.1.1"
+version = "1.1.2"
 description = '''
             Something fun for the one who like to train DNN on Large datasets :)
           '''

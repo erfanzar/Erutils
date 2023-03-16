@@ -717,6 +717,21 @@ def rotary_embedding(query: Optional[torch.Tensor], key: Optional[torch.Tensor],
     k: torch.Tensor = torch.view_as_real(_key * freq).flatten(3)
     return q.type_as(query), k.type_as(key)
 
+def rotate_half(x):
+    """Rotates half the hidden dims of the input."""
+    x1 = x[..., : x.shape[-1] // 2]
+    x2 = x[..., x.shape[-1] // 2:]
+    return torch.cat((-x2, x1), dim=-1)
+
+
+def apply_rotary_pos_emb(q, k, cos, sin, offset: int = 0):
+    cos = cos[..., offset: q.shape[-2] + offset, :]
+    sin = sin[..., offset: q.shape[-2] + offset, :]
+    q_embed = (q * cos) + (rotate_half(q) * sin)
+    k_embed = (k * cos) + (rotate_half(k) * sin)
+    return q_embed, k_embed
+
+
 
 def build_alibi_tensor(number_of_heads:Optional[int],attention_mask:Optional[torch.Tensor],dtype:torch.dtype):
     assert attention_mask.ndim == 2
