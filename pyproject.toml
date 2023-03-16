@@ -26,6 +26,7 @@ dependencies = [
     "numba",
     "scikit-learn",
 #    " torch~=2.0.0",
+    'onnxruntime',
     "setuptools",
     "moviepy",
     "imageio==2.4.1",
