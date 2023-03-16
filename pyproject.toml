@@ -7,7 +7,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = "erutils"
-version = "1.1.2"
+version = "1.1.3"
 description = '''
             Something fun for the one who like to train DNN on Large datasets :)
           '''
@@ -28,7 +28,7 @@ dependencies = [
 #    " torch~=2.0.0",
     "setuptools",
     "moviepy",
-    "imageio",
+    "imageio==2.4.1",
     " toml",
     'tomli; python_version < "3.11"',
 ]

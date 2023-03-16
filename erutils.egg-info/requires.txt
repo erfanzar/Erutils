@@ -11,7 +11,7 @@ numba
 scikit-learn
 setuptools
 moviepy
-imageio
+imageio==2.4.1
 toml
 
 [:python_version < "3.11"]

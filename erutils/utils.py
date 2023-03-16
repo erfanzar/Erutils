@@ -11,7 +11,7 @@ import toml
 import yaml
 from moviepy.editor import *
 import dataclasses
-from .loggers import fprint
+
 import torch
 
 
@@ -65,7 +65,7 @@ def write_video_frame(video):
     cv.destroyAllWindows()
 
 
-def download(path: [str, os.PathLike], from_file: bool = False):
+def download(path: Union[str, os.PathLike], from_file: bool = False):
     if from_file:
         s = open(path, 'r').readlines()
         for u in s:
@@ -306,7 +306,7 @@ def device_info() -> None:
     memory = psutil.virtual_memory()
     free, total_gpu = torch.cuda.mem_get_info('cuda:0')
     used_gpu = total_gpu - free
-    fprint(
+    print('\033[1;36m',
         f'DEVICES : [ {torch.cuda.get_device_name()} ] | [ Free : {free / 1e9} GB ] | [ Used : {used_gpu / 1e9} GB ] | '
         f'[ Total : {total_gpu / 1e9} GB ]\n'
         f'RAM : [ Free : {memory.free / 1e9} GB ] | [ Total : {memory.total / 1e9} GB ]')
