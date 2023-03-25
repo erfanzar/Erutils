@@ -7,8 +7,8 @@ pefile
 requests
 PyYAML
 pyyaml
-numba
 scikit-learn
+torch~=2.0.0
 setuptools
 moviepy
 imageio==2.4.1

@@ -6,7 +6,20 @@ if __name__ == "__main__":
           url='https://github.com/erfanzar/',
           author_email='erfanzare82@yahoo.com',
           # license='MIT',
-          packages=['erutils'],
-          requires=['numpy', 'torchvision', 'numba', 'nltk', 'pandas', 'json5', 'PyYAML', 'torchtext',
-                    'torchaudio'],
+          packages=
+          [
+              'erutils'
+          ],
+          requires=
+          [
+              'numpy',
+              'torchvision',
+              'numba',
+              'nltk',
+              'pandas',
+              'json5',
+              'PyYAML',
+              'torchtext',
+              'torchaudio'
+          ],
           zip_safe=False)

@@ -3,16 +3,13 @@ import torch.nn as nn
 
 from .lightning import M
 
-DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-
 import math
 from collections import OrderedDict
 
 import torch
 from packaging import version
 from torch import Tensor, nn
-from typing import Any ,Dict,List,Union,Optional
-
+from typing import Any, Dict, List, Union, Optional, Tuple
 
 
 class RotaryEmbedding(nn.Module):
@@ -20,7 +17,7 @@ class RotaryEmbedding(nn.Module):
         """_summary_
 
         Args:
-            dim (_type_): int(head_size * rotary_prc)
+            dim (_type_): int(head_size)
             max_position_embeddings (_type_): max_sentecne_length
             base (int, optional): _description_. Defaults to 10000.
             device (_type_, optional): _description_. Defaults to None.
@@ -36,7 +33,13 @@ class RotaryEmbedding(nn.Module):
         self.cos_cached = emb.cos()[None, None, :, :]
         self.sin_cached = emb.sin()[None, None, :, :]
 
-    def forward(self, x, seq_len=None):
+    def forward(self, x, seq_len=None) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+
+        :param x: value
+        :param seq_len: sequence length
+        :return: cos and sin
+        """
         if seq_len > self.max_seq_len_cached:
             self.max_seq_len_cached = seq_len
             t = torch.arange(self.max_seq_len_cached, device=x.device, dtype=self.inv_freq.dtype)
@@ -46,7 +49,6 @@ class RotaryEmbedding(nn.Module):
             self.cos_cached = emb.cos()[None, None, :, :]
             self.sin_cached = emb.sin()[None, None, :, :]
         return self.cos_cached[:seq_len, ...].to(x.device), self.sin_cached[:seq_len, ...].to(x.device)
-
 
 
 class HyperParameters(object):
@@ -264,9 +266,9 @@ class Conv(M):
                  form: int = -1):
         super(Conv, self).__init__()
         self.form = form
-        self.to(DEVICE)
+
         self.conv = nn.Conv2d(c1, c2, kernel_size=k, stride=s,
-                              padding=p if p is not None else (1 if k == 3 else 0), groups=g).to(DEVICE)
+                              padding=p if p is not None else (1 if k == 3 else 0), groups=g)
         nn.init.xavier_normal_(self.conv.weight.data)
 
         self.activation = (
@@ -370,7 +372,7 @@ class ResidualBlock(M):
         super(ResidualBlock, self).__init__()
         self.use_residual = use_residual
         self.n = n
-        self.to(DEVICE)
+
         self.layer = nn.ModuleList()
         self.form = form
 

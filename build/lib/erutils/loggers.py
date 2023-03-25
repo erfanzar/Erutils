@@ -4,6 +4,7 @@ import cv2 as cv
 import keyboard
 import numpy as np
 import matplotlib.pylab as plt
+from .config import DEFAULT_COLOR, STRIDE_COLOR
 from typing import Optional, Union
 
 
@@ -60,11 +61,11 @@ class Cp:
     RESET: Optional[str] = f"\033[{Type};39m"
 
 
-def fprint(*args, color: str = Cp.CYAN, **kwargs):
+def fprint(*args, color: str = DEFAULT_COLOR, **kwargs):
     print(*(f"{color}{arg}" for arg in args), **kwargs)
 
 
-def attar_print(end: str = '\n', color: str = Cp.CYAN, **kwargs):
+def attar_print(end: str = '\n', color: str = DEFAULT_COLOR, **kwargs):
     assert len(kwargs) > 0, 'Keys And Vals Should Have same size'
 
     fprint((f'{k} : {v} \n' for k, v in kwargs.items()), color=color, end=end)
@@ -95,9 +96,10 @@ class Logger:
 
 
 def show_hyper_parameters(hyper_parameters: object) -> None:
-    len_t = 30 + 30 + 7
-    fprint('=' * len_t)
+    len_t = 30 + 30 + 9
+    fprint('=' * len_t, color=STRIDE_COLOR)
     for k, v in hyper_parameters.__dict__.items():
-        text: Optional[str] = '| {:<30} = {:>30} |'.format(f'{k}', f'{v}')
+        text: Optional[str] = '{}||{} {:<30} = {:>30} {}||{}'.format(STRIDE_COLOR, DEFAULT_COLOR, f'{k}', f'{v}',
+                                                                     STRIDE_COLOR, DEFAULT_COLOR)
         fprint(text)
     fprint('=' * len_t)
