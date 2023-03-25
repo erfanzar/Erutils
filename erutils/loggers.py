@@ -96,10 +96,11 @@ class Logger:
 
 
 def show_hyper_parameters(hyper_parameters: object) -> None:
-    len_t = 30 + 30 + 9
-    fprint('=' * len_t, color=STRIDE_COLOR)
+    len_t = 30 + 30 + 8
+
+    fprint('-' * len_t, color=STRIDE_COLOR)
     for k, v in hyper_parameters.__dict__.items():
-        text: Optional[str] = '{}||{} {:<30} = {:>30} {}||{}'.format(STRIDE_COLOR, DEFAULT_COLOR, f'{k}', f'{v}',
-                                                                     STRIDE_COLOR, DEFAULT_COLOR)
+        text: Optional[str] = '{}|{} {:<30} => {:>30} {}|{}'.format(STRIDE_COLOR, DEFAULT_COLOR, f'{k}', f'{v}',
+                                                                    STRIDE_COLOR, DEFAULT_COLOR)
         fprint(text)
-    fprint('=' * len_t)
+    fprint('-' * len_t, color=STRIDE_COLOR)

@@ -1,2 +1,2 @@
 DEFAULT_COLOR: str = '\033[1;94m'
-STRIDE_COLOR: str = '\033[1;92m'
+STRIDE_COLOR: str = '\033[1;93m'
