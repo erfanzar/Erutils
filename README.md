@@ -19,6 +19,8 @@ from erutils.loggers import *
 # Loggers contain Logging stuff
 from erutils.nn import *
 # NN contain Nural networks built in Pytorch
+# you can easily import erutils.nn and use many prebuilt neurons in the project 
+# if you thing any refrence should be added tell me in discussion 
 from erutils.lightning import *
 # Lightning Contain Some CV Packages
 from erutils.utils import *

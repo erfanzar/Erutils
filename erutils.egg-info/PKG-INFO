@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: erutils
-Version: 1.1.8
+Version: 1.2.0
 Summary: Something fun for the one who like to train DNN on Large datasets :)
 Home-page: https://github.com/erfanzar/
 Author: erfan zare chavoshi
@@ -39,6 +39,8 @@ from erutils.loggers import *
 # Loggers contain Logging stuff
 from erutils.nn import *
 # NN contain Nural networks built in Pytorch
+# you can easily import erutils.nn and use many prebuilt neurons in the project 
+# if you thing any refrence should be added tell me in discussion 
 from erutils.lightning import *
 # Lightning Contain Some CV Packages
 from erutils.utils import *
