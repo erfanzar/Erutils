@@ -660,6 +660,8 @@ class Detect(nn.Module):
     dynamic = False
     export = False
     shape = None
+    anchors = torch.empty(0)
+    strides = torch.empty(0)
 
     def __init__(self, nc=100, ch=()):
         super().__init__()

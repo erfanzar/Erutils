@@ -4,7 +4,6 @@ setup.py
 erutils/__init__.py
 erutils/__main__.py
 erutils/config.py
-erutils/dll.py
 erutils/lightning.py
 erutils/loggers.py
 erutils/nn.py
