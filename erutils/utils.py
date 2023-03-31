@@ -3,7 +3,11 @@ import math
 import time
 import typing
 from typing import Union, Optional
-
+import pefile
+import glob
+import os
+import shutil
+from pathlib import Path
 import cv2 as cv
 import psutil
 import requests
@@ -307,9 +311,9 @@ def device_info() -> None:
     free, total_gpu = torch.cuda.mem_get_info('cuda:0')
     used_gpu = total_gpu - free
     print('\033[1;36m',
-        f'DEVICES : [ {torch.cuda.get_device_name()} ] | [ Free : {free / 1e9} GB ] | [ Used : {used_gpu / 1e9} GB ] | '
-        f'[ Total : {total_gpu / 1e9} GB ]\n'
-        f'RAM : [ Free : {memory.free / 1e9} GB ] | [ Total : {memory.total / 1e9} GB ]')
+          f'DEVICES : [ {torch.cuda.get_device_name()} ] | [ Free : {free / 1e9} GB ] | [ Used : {used_gpu / 1e9} GB ] | '
+          f'[ Total : {total_gpu / 1e9} GB ]\n'
+          f'RAM : [ Free : {memory.free / 1e9} GB ] | [ Total : {memory.total / 1e9} GB ]')
 
 
 def get_memory(index: int) -> typing.Tuple[float, float, float]:
@@ -335,21 +339,58 @@ def monitor_function(function):
 
 
 def create_output_path(path: Union[os.PathLike, str], name: Optional[str]):
-    path_exist = os.path.exists(path)
-    if not path_exist:
-        os.mkdir(path)
-    name_exist = os.path.exists(os.path.join(path, name))
-    u_name = name
-    if not name_exist:
-        os.mkdir(os.path.join(path, u_name))
+    pp = Path(os.path.join(path, name))
+    pp.mkdir(parents=True, exist_ok=True)
+    return pp
 
-    else:
-        at_try: int = 1
-        while True:
-            try:
-                u_name = name + f'_{at_try}'
-                os.mkdir(os.path.join(path, u_name))
-                break
-            except FileExistsError:
-                at_try += 1
-    return f'{path}/{u_name}'
+
+def fixer_dll(input_path: Union[str, os.PathLike] = "*.dll", backup: bool = False, recursive: bool = False):
+    failures = []
+    for file in glob.glob(input_path, recursive=recursive):
+        print(f"\n---\nChecking {file}...")
+        pe = pefile.PE(file, fast_load=True)
+        nvbSect = [section for section in pe.sections if section.Name.decode().startswith(".nv_fatb")]
+        if len(nvbSect) == 1:
+            sect = nvbSect[0]
+            size = sect.Misc_VirtualSize
+            aslr = pe.OPTIONAL_HEADER.IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
+            writable = 0 != (sect.Characteristics & pefile.SECTION_CHARACTERISTICS['IMAGE_SCN_MEM_WRITE'])
+            print(f"Found NV FatBin! Size: {size / 1024 / 1024:0.2f}MB  ASLR: {aslr}  Writable: {writable}")
+            if (writable or aslr) and size > 0:
+                print("- Modifying DLL")
+                if backup:
+                    bakFile = f"{file}_bak"
+                    print(f"- Backing up [{file}] -> [{bakFile}]")
+                    if os.path.exists(bakFile):
+                        print(
+                            f"- Warning: Backup file already exists ({bakFile}), not modifying file! Delete the 'bak' to allow modification")
+                        failures.append(file)
+                        continue
+                    try:
+                        shutil.copy2(file, bakFile)
+                    except Exception as e:
+                        print(f"- Failed to create backup! [{str(e)}], not modifying file!")
+                        failures.append(file)
+                        continue
+                # Disable ASLR for DLL, and disable writing for section
+                pe.OPTIONAL_HEADER.DllCharacteristics &= ~pefile.DLL_CHARACTERISTICS[
+                    'IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE']
+                sect.Characteristics = sect.Characteristics & ~pefile.SECTION_CHARACTERISTICS['IMAGE_SCN_MEM_WRITE']
+                try:
+                    newFile = f"{file}_mod"
+                    print(f"- Writing modified DLL to [{newFile}]")
+                    pe.write(newFile)
+                    pe.close()
+                    print(f"- Moving modified DLL to [{file}]")
+                    os.remove(file)
+                    shutil.move(newFile, file)
+                except Exception as e:
+                    print(f"- Failed to write modified DLL! [{str(e)}]")
+                    failures.append(file)
+                    continue
+
+    print("\n\nDone!")
+    if len(failures) > 0:
+        print("***WARNING**** These files needed modification but failed: ")
+        for failure in failures:
+            print(f" - {failure}")

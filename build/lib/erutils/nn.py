@@ -657,8 +657,11 @@ class Ensemble(nn.ModuleList):
 
 
 class Detect(nn.Module):
+    dynamic = False
+    export = False
+    shape = None
 
-    def __init__(self, nc=80, ch=()):
+    def __init__(self, nc=100, ch=()):
         super().__init__()
         self.dynamic = False
         self.export = False
@@ -704,7 +707,7 @@ class Detect(nn.Module):
 
 class Segment(Detect):
 
-    def __init__(self, nc=80, nm=32, npr=256, ch=()):
+    def __init__(self, nc=100, nm=32, npr=256, ch=()):
         super().__init__(nc, ch)
         self.nm = nm
         self.npr = npr

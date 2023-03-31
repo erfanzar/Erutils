@@ -1,13 +1,13 @@
 # `Erutils`
 
-The `Erutils` package is the most simple package that include some stuffs that i think that i use every day and build
+The `Erutils` package is the simplest package that include some stuffs that I think that I use every day and build
 them every day cause im to lazy to copy them from other projects :).
 
 Erutils Package is a self-made package for self uses but if you find a way to use it to make you job easier.
 
 feel free to use as you wish
 
-Open [erfanzare Github](https://github.com/erfanzar/)
+Open [erfan zare Github](https://github.com/erfanzar/)
 
 Open [Package Github](https://github.com/erfanzar/Erutils)
 
