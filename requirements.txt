@@ -11,4 +11,5 @@ moviepy~=1.0.3
 toml~=0.10.2
 torch~=2.0.0
 onnxruntime
+thop
 dataclasses==0.6

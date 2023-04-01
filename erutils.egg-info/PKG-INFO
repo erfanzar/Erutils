@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: erutils
-Version: 1.2.2.1
+Version: 1.2.2.2
 Summary: Something fun for the one who like to train DNN on Large datasets :)
 Home-page: https://github.com/erfanzar/
 Author: erfan zare chavoshi
@@ -15,6 +15,8 @@ Requires: json5
 Requires: PyYAML
 Requires: torchtext
 Requires: torchaudio
+Requires: onnxruntime
+Requires: thop
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
 

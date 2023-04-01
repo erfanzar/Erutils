@@ -20,6 +20,8 @@ if __name__ == "__main__":
               'json5',
               'PyYAML',
               'torchtext',
-              'torchaudio'
+              'torchaudio',
+              'onnxruntime',
+              'thop'
           ],
           zip_safe=False)

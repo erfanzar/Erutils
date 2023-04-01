@@ -1,13 +1,14 @@
 [build-system]
 requires = ['setuptools>=42', 'numpy', 'torch', 'torchvision', 'nltk', 'pandas', 'json5', 'PyYAML', 'torchtext',
-    'torchaudio', 'moviepy', "imageio==2.4.1"]
+    'torchaudio', 'moviepy', "imageio==2.4.1", 'onnxruntime',
+    'thop']
 build-backend = 'setuptools.build_meta'
 
 
 
 [project]
 name = "erutils"
-version = "1.2.2.1"
+version = "1.2.2.2"
 description = '''
             Something fun for the one who like to train DNN on Large datasets :)
           '''
@@ -28,7 +29,8 @@ dependencies = [
     "setuptools",
     "moviepy",
     "imageio==2.4.1",
-    " toml",
+    " toml", 'onnxruntime',
+    'thop',
     'tomli; python_version < "3.11"',
 ]
 requires-python = ">=3.8"

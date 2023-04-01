@@ -13,6 +13,8 @@ setuptools
 moviepy
 imageio==2.4.1
 toml
+onnxruntime
+thop
 
 [:python_version < "3.11"]
 tomli
