@@ -1,0 +1,11 @@
+numpy
+torchvision>=1.13.0
+numba
+nltk
+pandas
+json5
+PyYAML
+torchtext>=0.9.0
+torchaudio>=0.9.0
+onnxruntime
+thop

@@ -6,7 +6,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="erutils",
+    name="Erutils",
+    version='1.3.0',
     author="Erfan Zare Chavoshi",
     author_email="erfanzare82@yahoo.com",
     long_description=long_description,
@@ -30,7 +31,7 @@ setuptools.setup(
     license='Apache License 2.0',
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT Software License",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
