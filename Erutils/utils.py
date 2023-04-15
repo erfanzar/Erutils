@@ -13,7 +13,7 @@ import psutil
 import requests
 import toml
 import yaml
-from moviepy.editor import *
+# from moviepy.editor import *
 import dataclasses
 
 import torch
@@ -163,10 +163,10 @@ def read_toml(path: Union[str, os.PathLike] = None):
     return data
 
 
-def mp4_to_mp3(mp4, mp3):
-    fc = AudioFileClip(mp4)
-    fc.write_audiofile(mp3)
-    fc.close()
+# def mp4_to_mp3(mp4, mp3):
+#     fc = AudioFileClip(mp4)
+#     fc.write_audiofile(mp3)
+#     fc.close()
 
 
 def file_reader(path: Union[str, os.PathLike]) -> list:

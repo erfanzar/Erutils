@@ -1,10 +1,12 @@
 Metadata-Version: 2.1
 Name: Erutils
-Version: 1.3.0
+Version: 1.3.1
+Summary: UNKNOWN
 Home-page: https://github.com/erfanzar/
 Author: Erfan Zare Chavoshi
 Author-email: erfanzare82@yahoo.com
 License: Apache License 2.0
+Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
@@ -86,3 +88,4 @@ Private Project
 ## Author
 
 - [@erfanzar](https://www.github.com/erfanzar)
+

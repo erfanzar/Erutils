@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="Erutils",
-    version='1.3.0',
+    version='1.3.1',
     author="Erfan Zare Chavoshi",
     author_email="erfanzare82@yahoo.com",
     long_description=long_description,
@@ -25,7 +25,8 @@ setuptools.setup(
         'torchtext>=0.9.0',
         'torchaudio>=0.9.0',
         'onnxruntime',
-        'thop'
+        'thop',
+        'matplotlib'
     ],
     python_requires=">=3.6, <3.11",
     license='Apache License 2.0',
