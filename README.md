@@ -8,7 +8,7 @@ personal projects. While this package is mainly for my personal use, others may 
 You can install Erutils using pip:
 
 ```shell
-pip install Erutils
+pip install erutils
 ````
 
 Open [erfan zare Github](https://github.com/erfanzar/)
@@ -18,16 +18,16 @@ Open [Package Github](https://github.com/erfanzar/Erutils)
 ## 🚀 APIs and Usages
 
 ```python
-import Erutils
-from Erutils.loggers import *
+import erutils
+from erutils.loggers import *
 # Loggers contain Logging stuff
-from Erutils.nn import *
+from erutils.nn import *
 # NN contain Nural networks built in Pytorch
-# you can easily import Erutils.nn and use many prebuilt neurons in the project 
+# you can easily import erutils.nn and use many prebuilt neurons in the project 
 # if you thing any refrence should be added tell me in discussion 
-from Erutils.lightning import *
+from erutils.lightning import *
 # Lightning Contain Some CV Packages
-from Erutils.utils import *
+from erutils.utils import *
 # Utils Contain Some Utils like reading files downloading and etc ...
 ```
 
